@@ -26,7 +26,7 @@ const faq_routes = require("./routes/FAQ.routes");
 const user_order_routes = require("./routes/order.routes");
 const site_banner_routes = require("./routes/site_banner.routes");
 const site_trending_product_routes = require("./routes/site_trending_product.routes");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT ||8080;
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.set("strictQuery", true);
