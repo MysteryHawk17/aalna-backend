@@ -24,6 +24,6 @@ const CouponSchema = mongoose.Schema({
     required: true,
     default: true,
   },
-});
+},{timestamps:true});
 
 mongoose.model("Coupon", CouponSchema);

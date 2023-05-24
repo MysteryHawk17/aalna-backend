@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Site_Banner = mongoose.model("Site_Banner");
 const { errorRes, internalServerError, successRes } = require("../utility");
 const uploadOnCloudinary = require("../middlewares/Cloudinary");
+const deleteFromCloudinary=require('../middlewares/Cloudinary')
 
 module.exports.addBanner_post = async (req, res) => {
   const { banners } = req.body;
@@ -14,7 +15,7 @@ module.exports.addBanner_post = async (req, res) => {
   // if (!banners || banners?.length == 0)
   //   return errorRes(res, 400, "Banner list empty.");
   try {
-    await Site_Banner.deleteMany({});
+    // await Site_Banner.deleteMany({});
     console.log(req.files, "<<<<this is req.body"); 
     if (req?.files?.image?.length > 0) {
       req?.files?.image?.map(async (item, index) => {
@@ -26,15 +27,15 @@ module.exports.addBanner_post = async (req, res) => {
         await banner.save().then((banner) => result.push(banner));
       });
     }
-    let prevImages = JSON.parse(req.body?.prevImages);
-    if (prevImages.length > 0) {
-      prevImages.map(async (item, index) => {
-        const banner = new Site_Banner({
-          bannerImage: { url: item },
-        });
-        await banner.save().then((banner) => result.push(banner));
-      });
-    }
+    // let prevImages = JSON.parse(req.body?.prevImages);
+    // if (prevImages.length > 0) {
+    //   prevImages.map(async (item, index) => {
+    //     const banner = new Site_Banner({
+    //       bannerImage: { url: item },
+    //     });
+    //     await banner.save().then((banner) => result.push(banner));
+    //   });
+    // }
 
     // await Promise.all(
     //   banners.map(async (item) => {
@@ -63,3 +64,26 @@ module.exports.getAllBanners_get = (req, res) => {
     .then((banners) => successRes(res, { banners }))
     .catch((err) => internalServerError(res, err));
 };
+
+module.exports.deleteBanner=async(req,res)=>{
+  const id=req.params.id;
+  if(!id){
+    errorRes(res,400,"Please fill in the parameter");
+    return;
+  }
+  const findBanner=await Site_Banner.findById({_id:id});
+  if(findBanner){
+    const delImg=await deleteFromCloudinary(findBanner.bannerImage.url);
+    const deletedBanner=await Site_Banner.findByIdAndDelete({_id:id});
+    if(delImg&&deletedBanner){
+      successRes(res,deletedBanner);
+    }
+    else{
+      internalServerError(res,500);
+    }
+  }
+  else{
+    errorRes(res,404,"Banner not found");
+  }
+  
+}
