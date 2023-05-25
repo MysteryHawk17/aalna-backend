@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Site_Trending_Product = mongoose.model("Site_Trending_Product");
 const { errorRes, internalServerError, successRes } = require("../utility");
-const uploadOnCloudinary = require("../middlewares/Cloudinary");
+const {uploadOnCloudinary} = require("../middlewares/Cloudinary");
 
 module.exports.addTrendingProduct_post = async (req, res) => {
   const { prevImages } = req.body;

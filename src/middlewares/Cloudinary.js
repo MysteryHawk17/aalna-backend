@@ -20,11 +20,12 @@ const uploadOnCloudinary = async (file) => {
     console.log(error.message);
   }
 };
-const deleteFromCloudinary = async function deleteImageFromCloudinary(url) {
+const deleteFromCloudinary = async (url) =>{
   try {
     const deleteResult = await cloudinary.uploader.destroy(url);
     console.log('Image deleted successfully:');
     console.log(deleteResult);
+    return true;
   } catch (error) {
     console.error('Error deleting image:', error);
   }
@@ -54,7 +55,6 @@ const upload = multer({
   },
 });
 
-module.exports = uploadOnCloudinary;
-module.exports=deleteFromCloudinary;
+module.exports = {uploadOnCloudinary,deleteFromCloudinary};
 // module.exports = uploadPdf;
 // module.exports = upload;

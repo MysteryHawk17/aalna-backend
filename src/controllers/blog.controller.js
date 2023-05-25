@@ -7,7 +7,7 @@ const {
   shortIdChar,
 } = require("../utility");
 const shortid = require("shortid");
-const uploadOnCloudinary = require("../middlewares/Cloudinary");
+const {uploadOnCloudinary} = require("../middlewares/Cloudinary");
 
 module.exports.addBlog_post = async (req, res) => {
   const { title, content, displayImage } = req.body;
@@ -83,9 +83,10 @@ module.exports.getAllBlogs_get = (req, res) => {
     .catch((err) => internalServerError(res, err));
 };
 
-module.exports.deleteBlog_delete = (req, res) => {
+module.exports.deleteBlog_delete = async(req, res) => {
   const { _id } = req.params;
-
+  const findBlog=await Blog.findById({_id:_id});
+  const delImg=await deleteFromCloudinary(findBlog.displayImage[0].url);
   Blog.findByIdAndDelete(_id)
     .then((deletedBlog) => {
       if (!deletedBlog) return errorRes(res, 404, "Blog does not exist.");

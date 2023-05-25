@@ -7,7 +7,7 @@ const {
   shortIdChar,
 } = require("../utility");
 const shortid = require("shortid");
-const uploadOnCloudinary = require("../middlewares/Cloudinary");
+const {uploadOnCloudinary} = require("../middlewares/Cloudinary");
 module.exports.addProduct_post = async (req, res) => {
   console.log(req.body, "<<<thisisbody");
   const {

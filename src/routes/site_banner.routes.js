@@ -12,5 +12,6 @@ router.post(
   bannerController.addBanner_post 
 );
 router.get("/banner/all", bannerController.getAllBanners_get);
+router.delete("/admin/banner/delete/:id",bannerController.deleteBanner)
 
 module.exports = router;
