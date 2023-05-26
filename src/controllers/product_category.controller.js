@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const ProductCategory = mongoose.model("Product_Category");
 const { errorRes, internalServerError, successRes } = require("../utility");
-
-module.exports.addProductCategory_post = (req, res) => {
+const { uploadOnCloudinary, deleteFromCloudinary } = require("../middlewares/Cloudinary");
+module.exports.addProductCategory_post = async (req, res) => {
+  const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
   const { name, description, displayImage } = req.body;
   if (!name || !description || !displayImage?.url)
     return errorRes(res, 400, "All fields are required.");
@@ -12,10 +13,11 @@ module.exports.addProductCategory_post = (req, res) => {
         if (savedCateg)
           return errorRes(res, 400, "Category with given name already exist.");
         else {
+
           const category = new ProductCategory({
             name,
             description,
-            displayImage,
+            displayImage: [{ url: imageurl1 }],
           });
           category
             .save()

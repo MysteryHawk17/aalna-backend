@@ -29,6 +29,11 @@ const ProductSchema = mongoose.Schema(
       ref: "Product_Category",
       required: true,
     },
+    product_varient:[{
+      type:ObjectId,
+      ref:"ProductVariation",
+      required:true
+    }],
     displayImage: [
       {
         url: {

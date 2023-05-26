@@ -7,7 +7,7 @@ const {
   shortIdChar,
 } = require("../utility");
 const shortid = require("shortid");
-const {uploadOnCloudinary} = require("../middlewares/Cloudinary");
+const { uploadOnCloudinary } = require("../middlewares/Cloudinary");
 module.exports.addProduct_post = async (req, res) => {
   console.log(req.body, "<<<thisisbody");
   const {
@@ -17,8 +17,10 @@ module.exports.addProduct_post = async (req, res) => {
     color,
     price,
     product_category,
+    product_varient,
     displayImage,
     availability,
+
   } = req.body;
 
   if (
@@ -28,6 +30,7 @@ module.exports.addProduct_post = async (req, res) => {
     !color ||
     !price ||
     !product_category ||
+    !product_varient ||
     !availability
   )
     return errorRes(res, 400, "All fields are required.");
@@ -70,6 +73,7 @@ module.exports.addProduct_post = async (req, res) => {
     color,
     price,
     product_category,
+    product_varient: product_varient.split(','),
     displayImage: imageData,
     availability,
     productId,
@@ -94,7 +98,7 @@ module.exports.addProduct_post = async (req, res) => {
     })
     .catch((err) => internalServerError(res, err));
 };
- 
+
 module.exports.editProduct_post = async (req, res) => {
   const { productId } = req.params;
   console.log(req.body)
@@ -105,6 +109,7 @@ module.exports.editProduct_post = async (req, res) => {
     color,
     price,
     product_category,
+    product_varient,
     displayImage,
     availability,
   } = req.body;
@@ -119,7 +124,7 @@ module.exports.editProduct_post = async (req, res) => {
   // if (req.files.image.length == 0)
   //   return errorRes(res, 400, " Product Image is required.");
   let imageData = [];
-  if (req?.files?.image?.length > 0) { 
+  if (req?.files?.image?.length > 0) {
     if (req?.files?.image?.length > 0) {
       const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
       imageData = [...imageData, { url: imageurl1 }];
@@ -140,6 +145,18 @@ module.exports.editProduct_post = async (req, res) => {
       const imageurl1 = await uploadOnCloudinary(req.files.image[4]);
       imageData = [...imageData, { url: imageurl1 }];
     }
+    if (req.files.image.length > 4) {
+      const imageurl1 = await uploadOnCloudinary(req.files.image[4]);
+      imageData = [...imageData, { url: imageurl1 }];
+    }
+    if (req.files.image.length > 5) {
+      const imageurl1 = await uploadOnCloudinary(req.files.image[5]);
+      imageData = [...imageData, { url: imageurl1 }];
+    }
+    if (req.files.image.length > 6) {
+      const imageurl1 = await uploadOnCloudinary(req.files.image[6]);
+      imageData = [...imageData, { url: imageurl1 }];
+    }
   }
 
   let newImage = [...JSON.parse(req.body.prevImage), ...imageData];
@@ -151,6 +168,7 @@ module.exports.editProduct_post = async (req, res) => {
   if (color) updates.color = color;
   if (price) updates.price = price;
   if (product_category) updates.product_category = product_category;
+  if (product_varient) updates.product_varient = product_varient.split(',')
   if (newImage) {
     if (newImage.length !== 0) updates.displayImage = newImage;
   }
