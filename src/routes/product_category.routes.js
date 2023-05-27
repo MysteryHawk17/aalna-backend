@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+  const upload = require("../middlewares/Multer");
 const categoryController = require("../controllers/product_category.controller");
 const {
   requireAdminLogin,
@@ -8,7 +9,7 @@ const {
 
 router.post(
   "/product/category/add",
-  requireAdminLogin,
+  upload.fields([{ name: "image", maxCount: 1 }]),
   categoryController.addProductCategory_post
 );
 router.all("/product/category/all", categoryController.allCategory_get);

@@ -4,8 +4,8 @@ const { errorRes, internalServerError, successRes } = require("../utility");
 const { uploadOnCloudinary, deleteFromCloudinary } = require("../middlewares/Cloudinary");
 module.exports.addProductCategory_post = async (req, res) => {
   const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
-  const { name, description, displayImage } = req.body;
-  if (!name || !description ||!req.file)
+  const { name, description } = req.body;
+  if (!name || !description ||!req.files)
     return errorRes(res, 400, "All fields are required.");
   else {
     ProductCategory.findOne({ name: { $regex: new RegExp(name, "i") } }).then(

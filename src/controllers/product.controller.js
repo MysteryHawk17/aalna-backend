@@ -7,7 +7,7 @@ const {
   shortIdChar,
 } = require("../utility");
 const shortid = require("shortid");
-const { uploadOnCloudinary } = require("../middlewares/Cloudinary");
+const { uploadOnCloudinary,deleteFromCloudinary } = require("../middlewares/Cloudinary");
 module.exports.addProduct_post = async (req, res) => {
   console.log(req.body, "<<<thisisbody");
   const {
@@ -61,6 +61,14 @@ module.exports.addProduct_post = async (req, res) => {
   }
   if (req.files.image.length > 4) {
     const imageurl1 = await uploadOnCloudinary(req.files.image[4]);
+    imageData = [...imageData, { url: imageurl1 }];
+  }
+  if (req.files.image.length > 5) {
+    const imageurl1 = await uploadOnCloudinary(req.files.image[5]);
+    imageData = [...imageData, { url: imageurl1 }];
+  }
+  if (req.files.image.length > 6) {
+    const imageurl1 = await uploadOnCloudinary(req.files.image[6]);
     imageData = [...imageData, { url: imageurl1 }];
   }
   // console.log(imageData, "<<thisisimage", req.body.prevImage);
@@ -215,9 +223,21 @@ module.exports.getParticularProduct_get = (req, res) => {
     .catch((err) => internalServerError(res, err));
 };
 
-module.exports.deleteProduct_delete = (req, res) => {
+module.exports.deleteProduct_delete = async(req, res) => {
   const { productId } = req.params;
-
+  try {
+    const findProduct=await Product.findById({_id:productId});
+    if(findProduct){
+        findProduct.displayImage.map(async(e)=>{
+          await deleteFromCloudinary(e.url);
+        })
+    }
+    else{
+      errorRes(res,404,'Product not found');
+    }
+  } catch (error) {
+    internalServerError(res,'error in finding the product')
+  }
   Product.findByIdAndDelete(productId)
     .then((deletedProduct) => {
       if (!deletedProduct) return errorRes(res, 404, "Product not found.");
