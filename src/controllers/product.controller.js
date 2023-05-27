@@ -96,6 +96,7 @@ module.exports.addProduct_post = async (req, res) => {
           .select("-__v")
           .populate("product_category", "_id name displayImage description")
           .populate("color", "_id color_name hexcode")
+          .populate('product_varient')
           .then((result) =>
             successRes(res, {
               product: result,
@@ -192,6 +193,7 @@ module.exports.editProduct_post = async (req, res) => {
     })
       .populate("product_category", "_id name displayImage")
       .populate("color", "_id color_name hexcode")
+      .populate('product_varient')
       .then((updatedProd) => {
         if (!updatedProd) return errorRes(res, 400, "Product does not exist.");
         successRes(res, {
@@ -209,6 +211,7 @@ module.exports.allProducts_get = (req, res) => {
     .sort("-createdAt")
     .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
+    .populate('product_varient')
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
 };
@@ -219,6 +222,7 @@ module.exports.getParticularProduct_get = (req, res) => {
   Product.findById(productId)
     .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
+    .populate('product_varient')
     .then((product) => successRes(res, { product }))
     .catch((err) => internalServerError(res, err));
 };
@@ -273,6 +277,7 @@ module.exports.filterProducts_post = async (req, res) => {
   try {
     const products = await Product.find(query)
       .populate("color product_category")
+      .populate('product_varient')
       .sort(sortQuery);
     return successRes(res, { products });
   } catch (err) {
@@ -285,6 +290,7 @@ module.exports.randomProducts_get = async (req, res) => {
 
   Product.find()
     .populate("product_category color")
+    .populate('product_varient')
     .limit(limit)
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
