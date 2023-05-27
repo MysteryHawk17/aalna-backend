@@ -5,7 +5,7 @@ const { uploadOnCloudinary, deleteFromCloudinary } = require("../middlewares/Clo
 module.exports.addProductCategory_post = async (req, res) => {
   const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
   const { name, description, displayImage } = req.body;
-  if (!name || !description || !displayImage?.url)
+  if (!name || !description ||!req.file)
     return errorRes(res, 400, "All fields are required.");
   else {
     ProductCategory.findOne({ name: { $regex: new RegExp(name, "i") } }).then(
