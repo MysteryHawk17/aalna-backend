@@ -19,6 +19,7 @@ router.post(
   upload.fields([{ name: "image", maxCount: 6 }]), 
   productController.editProduct_post
 );
+router.get("/product/searchproduct",productController.searchProduct);
 router.delete(
   "/admin/product/:productId/delete",
   productController.deleteProduct_delete

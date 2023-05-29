@@ -27,6 +27,7 @@ const user_order_routes = require("./routes/order.routes");
 const site_banner_routes = require("./routes/site_banner.routes");
 const site_trending_product_routes = require("./routes/site_trending_product.routes");
 const product_varient_routes=require('./routes/product_varient.routes');
+const tnc_routes=require("./routes/tnc.routes");
 const PORT = process.env.PORT ||8080;
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -56,3 +57,4 @@ app.use(faq_routes);
 app.use(site_banner_routes);
 app.use(site_trending_product_routes);
 app.use(product_varient_routes)
+app.use(tnc_routes);

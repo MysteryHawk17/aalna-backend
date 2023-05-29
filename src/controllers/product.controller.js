@@ -7,7 +7,7 @@ const {
   shortIdChar,
 } = require("../utility");
 const shortid = require("shortid");
-const { uploadOnCloudinary,deleteFromCloudinary } = require("../middlewares/Cloudinary");
+const { uploadOnCloudinary, deleteFromCloudinary } = require("../middlewares/Cloudinary");
 module.exports.addProduct_post = async (req, res) => {
   console.log(req.body, "<<<thisisbody");
   const {
@@ -227,20 +227,20 @@ module.exports.getParticularProduct_get = (req, res) => {
     .catch((err) => internalServerError(res, err));
 };
 
-module.exports.deleteProduct_delete = async(req, res) => {
+module.exports.deleteProduct_delete = async (req, res) => {
   const { productId } = req.params;
   try {
-    const findProduct=await Product.findById({_id:productId});
-    if(findProduct){
-        findProduct.displayImage.map(async(e)=>{
-          await deleteFromCloudinary(e.url);
-        })
+    const findProduct = await Product.findById({ _id: productId });
+    if (findProduct) {
+      findProduct.displayImage.map(async (e) => {
+        await deleteFromCloudinary(e.url);
+      })
     }
-    else{
-      errorRes(res,404,'Product not found');
+    else {
+      errorRes(res, 404, 'Product not found');
     }
   } catch (error) {
-    internalServerError(res,'error in finding the product')
+    internalServerError(res, 'error in finding the product')
   }
   Product.findByIdAndDelete(productId)
     .then((deletedProduct) => {
@@ -295,3 +295,23 @@ module.exports.randomProducts_get = async (req, res) => {
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
 };
+
+module.exports.searchProduct = async (req, res) => {
+  const { query } = req.query;
+  if (query) {
+
+    queryObject.query = { $regex: query, $options: 'i' }
+
+  }
+  try {
+      const findProduct=await Product.find(queryObject);
+      if(findProduct){
+        successRes(res,findProduct);
+      }
+      else{
+        errorRes(res,400,"Cannot find the product");
+      }
+  } catch (error) {
+    internalServerError(res, "Error in searching product");
+  }
+}

@@ -5,7 +5,7 @@ const productVariationSchmea=mongoose.Schema({
         type:String,
         required:true
     }
-})
+},{timestamps:true});
 
 const productVariationModel=mongoose.model("ProductVariation",productVariationSchmea)
 module.exports=productVariationModel;
