@@ -17,7 +17,7 @@ module.exports.addProductCategory_post = async (req, res) => {
           const category = new ProductCategory({
             name,
             description,
-            displayImage: [{ url: imageurl1 }],
+            displayImage: { url: imageurl1 },
           });
           category
             .save()
@@ -45,10 +45,14 @@ module.exports.allCategory_get = (req, res) => {
     .catch(err => internalServerError(res, err));
 };
 
-module.exports.deleteProductCategory_delete = (req, res) => {
+module.exports.deleteProductCategory_delete = async(req, res) => {
   const { categoryId } = req.params;
 
   if (!categoryId) return errorRes(res, 400, "Category ID is required.");
+  const product_C=await ProductCategory.findById({_id:categoryId});
+  if(!product_C) return errorRes(res, 400, "Category does not exist.");
+
+  await deleteFromCloudinary(product_C.displayImage.url)
   ProductCategory.findByIdAndDelete(categoryId)
     .then(deletedCategory => {
       if (!deletedCategory)
