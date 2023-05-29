@@ -15,7 +15,6 @@ router.post(
 );
 router.post(
   "/admin/product/:productId/edit",
-  requireAdminLogin,
   upload.fields([{ name: "image", maxCount: 6 }]), 
   productController.editProduct_post
 );

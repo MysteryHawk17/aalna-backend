@@ -84,4 +84,4 @@ const editData = asynchandler(async (req, res) => {
 })
 
 
-module.exports = { test, createText, getDataByName, editData };
+module.exports = { test, createText,getAllData, getDataByName, editData };
