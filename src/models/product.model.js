@@ -29,6 +29,10 @@ const ProductSchema = mongoose.Schema(
       ref: "Product_Category",
       required: true,
     },
+    product_subCategory:{
+      type:String,
+      required:true
+    },
     priceVarient: [{
       varient: {
         type: String,

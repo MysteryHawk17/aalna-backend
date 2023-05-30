@@ -19,6 +19,7 @@ module.exports.addProduct_post = async (req, res) => {
     // price,
     priceVarient,
     product_category,
+    product_subCategory,
     // product_varient,
     displayImage,
     availability,
@@ -32,6 +33,7 @@ module.exports.addProduct_post = async (req, res) => {
     !description ||
     !color ||
     !priceVarient ||
+    !product_subCategory||
     !product_category ||
     !availability
   )
@@ -82,6 +84,7 @@ module.exports.addProduct_post = async (req, res) => {
     description,
     color,
     product_category,
+    product_subCategory,
     priceVarient: JSON.parse(priceVarient),
     displayImage: imageData,
     availability,
@@ -119,6 +122,7 @@ module.exports.editProduct_post = async (req, res) => {
     // price,
     priceVarient,
     product_category,
+    product_subCategory,
     // product_varient,
     displayImage,
     availability,
@@ -179,6 +183,7 @@ module.exports.editProduct_post = async (req, res) => {
   if (color) updates.color = color;
   // if (price) updates.price = price;
   if (product_category) updates.product_category = product_category;
+  if (product_subCategory) updates.product_subCategory = product_subCategory;
   // if (product_varient) updates.product_varient = product_varient.split(',')
   if (priceVarient) updates.priceVarient = JSON.parse(priceVarient);
   if (newImage) {
@@ -262,7 +267,7 @@ module.exports.filterProducts_post = async (req, res) => {
     query.product_category = { $in: categories };
 
   if(subCategory){
-    query.product_category.subCategory={$in:subCategory};
+    query.product_subCategory={$in:product_subCategory};
   }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
   else if (minPrice) query.price = { $gte: minPrice };
