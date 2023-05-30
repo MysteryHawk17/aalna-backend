@@ -23,6 +23,9 @@ router.delete(
   "/admin/product/:productId/delete",
   productController.deleteProduct_delete
 );
+<<<<<<< HEAD
 router.get("/product/search/paginated", productController.paginatedSearch);
+=======
+>>>>>>> parent of ae517d3 (Pagination added and mongoose models updated)
 
 module.exports = router;

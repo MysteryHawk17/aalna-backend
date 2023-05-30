@@ -18,6 +18,6 @@ const adminSchema = new mongoose.Schema({
     type: String,
     default: "admin",
   },
-},{timestamps:true});
+});
 
 mongoose.model("Admin", adminSchema);

@@ -20,6 +20,7 @@ const ProductSchema = mongoose.Schema(
       ref: "Product_Color",
       required: true,
     },
+<<<<<<< HEAD
     // price: {
     //   type: Number,
     //   required: true,
@@ -36,23 +37,31 @@ const ProductSchema = mongoose.Schema(
       subCatagory:{
         type:String
       }
+=======
+    price: {
+      type: Number,
+      required: true,
     },
-    priceVarient: [{
-      varient: {
-        type: String,
-        required: true
-      },
-      price: {
-        type: String,
-        required: true
-      }
+    product_category: {
+      type: ObjectId,
+      ref: "Product_Category",
+      required: true,
+>>>>>>> parent of ae517d3 (Pagination added and mongoose models updated)
+    },
+    product_varient:[{
+      type:ObjectId,
+      ref:"ProductVariation",
+      required:true
     }],
+<<<<<<< HEAD
     
     // product_varient:[{
     //   type:ObjectId,
     //   ref:"ProductVariation",
     //   required:true
     // }],
+=======
+>>>>>>> parent of ae517d3 (Pagination added and mongoose models updated)
     displayImage: [
       {
         url: {
