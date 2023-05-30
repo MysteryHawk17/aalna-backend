@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Product = mongoose.model("Product");
+const asynchandler = require('express-async-handler');
 const {
   errorRes,
   internalServerError,
@@ -21,6 +22,7 @@ module.exports.addProduct_post = async (req, res) => {
     // product_varient,
     displayImage,
     availability,
+
 
   } = req.body;
 
@@ -93,8 +95,8 @@ module.exports.addProduct_post = async (req, res) => {
       else {
         Product.findById(savedProd._id)
           .select("-__v")
+          .populate("product_category", "_id name displayImage description")
           .populate("color", "_id color_name hexcode")
-          .populate('product_varient')
           .then((result) =>
             successRes(res, {
               product: result,
@@ -123,7 +125,16 @@ module.exports.editProduct_post = async (req, res) => {
   } = req.body;
 
   const updates = {};
+
+  // console.log(req.files, req.body.prevImage);    
+  // if (!req.files.image)
+  //   return errorRes(res, 400, " Product Image is required.");
+  // if (req.files.image.length == 0)
+  //   return errorRes(res, 400, " Product Image is required.");
+  // if (req.files.image.length == 0)
+  //   return errorRes(res, 400, " Product Image is required.");
   let imageData = [];
+  let newImage = [];
   if (req?.files?.image?.length > 0) {
     if (req?.files?.image?.length > 0) {
       const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
@@ -157,9 +168,9 @@ module.exports.editProduct_post = async (req, res) => {
       const imageurl1 = await uploadOnCloudinary(req.files.image[6]);
       imageData = [...imageData, { url: imageurl1 }];
     }
+    newImage = [...JSON.parse(req.body.prevImage), ...imageData];
   }
 
-  let newImage = [...JSON.parse(req.body.prevImage), ...imageData];
   // res.status(200).send(newImage);
   // return null;
   if (displayName) updates.displayName = displayName;
@@ -183,8 +194,8 @@ module.exports.editProduct_post = async (req, res) => {
       new: true,
       runValidators: true,
     })
+      .populate("product_category", "_id name displayImage")
       .populate("color", "_id color_name hexcode")
-      .populate('product_varient')
       .then((updatedProd) => {
         if (!updatedProd) return errorRes(res, 400, "Product does not exist.");
         successRes(res, {
@@ -200,8 +211,8 @@ module.exports.editProduct_post = async (req, res) => {
 module.exports.allProducts_get = (req, res) => {
   Product.find()
     .sort("-createdAt")
+    .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
-    .populate('product_varient')
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
 };
@@ -210,8 +221,8 @@ module.exports.getParticularProduct_get = (req, res) => {
   const { productId } = req.params;
   console.log(productId);
   Product.findById(productId)
+    .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
-    .populate('product_varient')
     .then((product) => successRes(res, { product }))
     .catch((err) => internalServerError(res, err));
 };
@@ -243,13 +254,16 @@ module.exports.deleteProduct_delete = async (req, res) => {
 };
 
 module.exports.filterProducts_post = async (req, res) => {
-  const { categories, minPrice, maxPrice, colors, sortBy } = req.body;
+  const { categories,subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
   let query = {};
 
   if (categories && categories.length != 0)
     query.product_category = { $in: categories };
 
+  if(subCategory){
+    query.product_category.subCategory={$in:subCategory};
+  }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
   else if (minPrice) query.price = { $gte: minPrice };
   else if (maxPrice) query.price = { $lte: maxPrice };
@@ -291,18 +305,22 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const result = getAllProducts.slice(startIndex, endIndex);
-      successRes(res, result);
+      const res={
+        result:result,
+        totalPage:Math.ceil(getAllProducts.length/limit)
+      }
+      successRes(res, res);
     }
-    else {
+    else { 
       internalServerError(res, 'Unable to fetch the products');
     }
   } catch (error) {
     console.log(error)
     internalServerError(res, 'Unable to fetch the products');
   }
+
+
 })
-
-
 module.exports.searchProduct = async (req, res) => {
   const { query } = req.query;
   if (query) {
@@ -322,3 +340,16 @@ module.exports.searchProduct = async (req, res) => {
     internalServerError(res, "Error in searching product");
   }
 }
+// module.exports.searchCategory = async (req, res) => {
+//   const { category, subCategory } = req.body;
+//   try {
+//     const getAllProducts = await Product.find({}).populate('product_category').populate('color');
+//     const filterProduct = getAllProducts.filter((e) => {
+//       return (e.product_category.name === category || e.product_category.subCategory.includes(subCategory))
+//     })
+//     successRes(res, filterProduct);
+//   } catch (error) {
+//     internalServerError(res, 'Unable to fetch category');
+//   }
+
+// }

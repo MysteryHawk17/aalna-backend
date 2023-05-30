@@ -11,6 +11,7 @@ const productColorSchema = new mongoose.Schema(
       required: true,
     },
   },
+  {timestamps:true},
   { versionKey: false }
 );
 

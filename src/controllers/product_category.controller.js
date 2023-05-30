@@ -5,7 +5,7 @@ const { uploadOnCloudinary, deleteFromCloudinary } = require("../middlewares/Clo
 module.exports.addProductCategory_post = async (req, res) => {
   const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
   const { name, description, subCategory } = req.body;
-  if (!name || !description || !req.files )
+  if (!name || !description || !req.files)
     return errorRes(res, 400, "All fields are required.");
   else {
     ProductCategory.findOne({ name: { $regex: new RegExp(name, "i") } }).then(
@@ -18,14 +18,14 @@ module.exports.addProductCategory_post = async (req, res) => {
             name,
             description,
             displayImage: { url: imageurl1 },
-            subCategory:subCategory==''?[]: subCategory.split(",")
+            subCategory: subCategory.split(',')
           });
           category
             .save()
             .then(savedCateg => {
               const { name, description, displayImage, _id } = savedCateg;
               return successRes(res, {
-                savedCateg,
+                product_category: { _id, name, description, displayImage },
                 message: "Category added successfully.",
               });
             })
@@ -38,7 +38,6 @@ module.exports.addProductCategory_post = async (req, res) => {
 
 module.exports.allCategory_get = (req, res) => {
   ProductCategory.find()
-    .populate("subCategory")
     .sort("name")
     .select("-__v")
     .then(categories => {
@@ -67,32 +66,32 @@ module.exports.deleteProductCategory_delete = async (req, res) => {
     })
     .catch(err => console.log(err));
 };
-
-module.exports.editCategory=async(req,res)=>{
-    const{categoryId}=req.params;
-    if (!categoryId) return errorRes(res, 400, "Category ID is required.");
-    const product_C = await ProductCategory.findById({ _id: categoryId });
-    if (!product_C) return errorRes(res, 400, "Category does not exist.");
-    try {
-      const changes={}
-      const{name,description,subCategory}=req.body;
-      if(name){
-        changes.name=name;
-      }
-      if(description){
-        changes.description=description
-      }
-      if(subCategory){
-        changes.subCategory=subCategory.split(',');
-      }
-      if(req.files){
-        const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
-        changes.displayImage={url:imageurl1};
-      }
-      const updatedData=await ProductCategory.findByIdAndUpdate({_id:categoryId},updatedData,{new:true});
-      successRes(res,updatedData);
-    } catch (error) {
-      internalServerError(res,"Error in editing product category");
+module.exports.editCategory = async (req, res) => {
+  const { categoryId } = req.params;
+  if (!categoryId) return errorRes(res, 400, "Category ID is required.");
+  const product_C = await ProductCategory.findById({ _id: categoryId });
+  if (!product_C) return errorRes(res, 400, "Category does not exist.");
+  try {
+    const changes = {}
+    const { name, description, subCategory } = req.body;
+    if (name) {
+      changes.name = name;
     }
-}
+    if (description) {
+      changes.description = description
+    }
+    if (subCategory) {
 
+      changes.subCategory = subCategory.split(',');
+    }
+    if (req.files) {
+      deleteFromCloudinary(product_C.displayImage.url)
+      const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
+      changes.displayImage = { url: imageurl1 };
+    }
+    const updatedData = await ProductCategory.findByIdAndUpdate({ _id: categoryId }, updatedData, { new: true });
+    successRes(res, updatedData);
+  } catch (error) {
+    internalServerError(res, "Error in editing product category");
+  }
+}

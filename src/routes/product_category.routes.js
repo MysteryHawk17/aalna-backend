@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-  const upload = require("../middlewares/Multer");
+const upload = require("../middlewares/Multer");
 const categoryController = require("../controllers/product_category.controller");
 const {
   requireAdminLogin,
@@ -18,6 +18,5 @@ router.delete(
   requireAdminLogin,
   categoryController.deleteProductCategory_delete
 );
-router.put("/product/category/:categoryId/edit",categoryController.editCategory);
-
+router.put("/product/category/:categoryId/edit", categoryController.editCategory);
 module.exports = router;
