@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Product = mongoose.model("Product");
+const asynchandler = require('express-async-handler');
 const {
   errorRes,
   internalServerError,
@@ -15,11 +16,13 @@ module.exports.addProduct_post = async (req, res) => {
     brand_title,
     description,
     color,
-    price,
+    // price,
+    priceVarient,
     product_category,
-    product_varient,
+    // product_varient,
     displayImage,
     availability,
+
 
   } = req.body;
 
@@ -28,9 +31,8 @@ module.exports.addProduct_post = async (req, res) => {
     !brand_title ||
     !description ||
     !color ||
-    !price ||
+    !priceVarient ||
     !product_category ||
-    !product_varient ||
     !availability
   )
     return errorRes(res, 400, "All fields are required.");
@@ -79,9 +81,8 @@ module.exports.addProduct_post = async (req, res) => {
     brand_title,
     description,
     color,
-    price,
     product_category,
-    product_varient: product_varient.split(','),
+    priceVarient: JSON.parse(priceVarient),
     displayImage: imageData,
     availability,
     productId,
@@ -96,7 +97,6 @@ module.exports.addProduct_post = async (req, res) => {
           .select("-__v")
           .populate("product_category", "_id name displayImage description")
           .populate("color", "_id color_name hexcode")
-          .populate('product_varient')
           .then((result) =>
             successRes(res, {
               product: result,
@@ -116,9 +116,10 @@ module.exports.editProduct_post = async (req, res) => {
     brand_title,
     description,
     color,
-    price,
+    // price,
+    priceVarient,
     product_category,
-    product_varient,
+    // product_varient,
     displayImage,
     availability,
   } = req.body;
@@ -133,6 +134,7 @@ module.exports.editProduct_post = async (req, res) => {
   // if (req.files.image.length == 0)
   //   return errorRes(res, 400, " Product Image is required.");
   let imageData = [];
+  let newImage = [];
   if (req?.files?.image?.length > 0) {
     if (req?.files?.image?.length > 0) {
       const imageurl1 = await uploadOnCloudinary(req.files.image[0]);
@@ -166,18 +168,19 @@ module.exports.editProduct_post = async (req, res) => {
       const imageurl1 = await uploadOnCloudinary(req.files.image[6]);
       imageData = [...imageData, { url: imageurl1 }];
     }
+    newImage = [...JSON.parse(req.body.prevImage), ...imageData];
   }
 
-  let newImage = [...JSON.parse(req.body.prevImage), ...imageData];
   // res.status(200).send(newImage);
   // return null;
   if (displayName) updates.displayName = displayName;
   if (brand_title) updates.brand_title = brand_title;
   if (description) updates.description = description;
   if (color) updates.color = color;
-  if (price) updates.price = price;
+  // if (price) updates.price = price;
   if (product_category) updates.product_category = product_category;
-  if (product_varient) updates.product_varient = product_varient.split(',')
+  // if (product_varient) updates.product_varient = product_varient.split(',')
+  if (priceVarient) updates.priceVarient = JSON.parse(priceVarient);
   if (newImage) {
     if (newImage.length !== 0) updates.displayImage = newImage;
   }
@@ -193,7 +196,6 @@ module.exports.editProduct_post = async (req, res) => {
     })
       .populate("product_category", "_id name displayImage")
       .populate("color", "_id color_name hexcode")
-      .populate('product_varient')
       .then((updatedProd) => {
         if (!updatedProd) return errorRes(res, 400, "Product does not exist.");
         successRes(res, {
@@ -211,7 +213,6 @@ module.exports.allProducts_get = (req, res) => {
     .sort("-createdAt")
     .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
-    .populate('product_varient')
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
 };
@@ -222,7 +223,6 @@ module.exports.getParticularProduct_get = (req, res) => {
   Product.findById(productId)
     .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
-    .populate('product_varient')
     .then((product) => successRes(res, { product }))
     .catch((err) => internalServerError(res, err));
 };
@@ -277,7 +277,6 @@ module.exports.filterProducts_post = async (req, res) => {
   try {
     const products = await Product.find(query)
       .populate("color product_category")
-      .populate('product_varient')
       .sort(sortQuery);
     return successRes(res, { products });
   } catch (err) {
@@ -290,12 +289,31 @@ module.exports.randomProducts_get = async (req, res) => {
 
   Product.find()
     .populate("product_category color")
-    .populate('product_varient')
     .limit(limit)
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
 };
+module.exports.paginatedSearch = asynchandler(async (req, res) => {
+  const { page, limit } = req.query;
+  console.log(req.query)
+  try {
+    const getAllProducts = await Product.find();
+    if (getAllProducts) {
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const result = getAllProducts.slice(startIndex, endIndex);
+      successRes(res, result);
+    }
+    else {
+      internalServerError(res, 'Unable to fetch the products');
+    }
+  } catch (error) {
+    console.log(error)
+    internalServerError(res, 'Unable to fetch the products');
+  }
 
+
+})
 module.exports.searchProduct = async (req, res) => {
   const { query } = req.query;
   if (query) {
@@ -304,13 +322,13 @@ module.exports.searchProduct = async (req, res) => {
 
   }
   try {
-      const findProduct=await Product.find(queryObject);
-      if(findProduct){
-        successRes(res,findProduct);
-      }
-      else{
-        errorRes(res,400,"Cannot find the product");
-      }
+    const findProduct = await Product.find(queryObject);
+    if (findProduct) {
+      successRes(res, findProduct);
+    }
+    else {
+      errorRes(res, 400, "Cannot find the product");
+    }
   } catch (error) {
     internalServerError(res, "Error in searching product");
   }

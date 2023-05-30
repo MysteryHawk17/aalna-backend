@@ -23,5 +23,7 @@ router.delete(
   "/admin/product/:productId/delete",
   productController.deleteProduct_delete
 );
+router.get("/product/search/paginated",productController.paginatedSearch);
 
 module.exports = router;
+ 

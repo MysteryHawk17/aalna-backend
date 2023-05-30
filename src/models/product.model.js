@@ -20,20 +20,30 @@ const ProductSchema = mongoose.Schema(
       ref: "Product_Color",
       required: true,
     },
-    price: {
-      type: Number,
-      required: true,
-    },
+    // price: {
+    //   type: Number,
+    //   required: true,
+    // },
     product_category: {
       type: ObjectId,
       ref: "Product_Category",
       required: true,
     },
-    product_varient:[{
-      type:ObjectId,
-      ref:"ProductVariation",
-      required:true
+    priceVarient: [{
+      varient: {
+        type: String,
+        required: true
+      },
+      price: {
+        type: String,
+        required: true
+      }
     }],
+    // product_varient:[{
+    //   type:ObjectId,
+    //   ref:"ProductVariation",
+    //   required:true
+    // }],
     displayImage: [
       {
         url: {
