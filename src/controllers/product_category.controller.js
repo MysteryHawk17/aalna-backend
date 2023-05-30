@@ -23,9 +23,9 @@ module.exports.addProductCategory_post = async (req, res) => {
           category
             .save()
             .then(savedCateg => {
-              const { name, description, displayImage, _id } = savedCateg;
+              const { name, description, displayImage, _id ,subCategory} = savedCateg;
               return successRes(res, {
-                product_category: { _id, name, description, displayImage },
+                product_category: { _id, name, description, displayImage,subCategory },
                 message: "Category added successfully.",
               });
             })
