@@ -82,6 +82,28 @@ const editData = asynchandler(async (req, res) => {
         errorRes(res, 404, 'Cannot found the data');
     }
 })
+const deleteData = asynchandler(async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return errorRes(res, 400, 'Invalid parameter format');
+    }
+    const findData = await textDB({ _id: id });
+    if (findData) {
+        
+
+        const deletedData = await textDB.findByIdAndDelete({ _id: id });
+
+        if (deletedData) {
+            successRes(res, deletedData);
+        }
+        else {
+            internalServerError(res, "Error in deleting the data");
+        }
+    }
+    else {
+        errorRes(res, 404, 'Cannot found the data');
+    }
+})
 
 
-module.exports = { test, createText,getAllData, getDataByName, editData };
+module.exports = { test, createText,getAllData, getDataByName, editData ,deleteData};
