@@ -18,7 +18,7 @@ module.exports.addProduct_post = async (req, res) => {
     color,
     // price,
     priceVarient,
-    product_category,
+    category,
     // product_varient,
     displayImage,
     availability,
@@ -32,7 +32,7 @@ module.exports.addProduct_post = async (req, res) => {
     !description ||
     !color ||
     !priceVarient ||
-    !product_category ||
+    !category ||
     !availability
   )
     return errorRes(res, 400, "All fields are required.");
@@ -81,7 +81,7 @@ module.exports.addProduct_post = async (req, res) => {
     brand_title,
     description,
     color,
-    product_category,
+    category:JSON.parse(category),
     priceVarient: JSON.parse(priceVarient),
     displayImage: imageData,
     availability,
@@ -95,7 +95,6 @@ module.exports.addProduct_post = async (req, res) => {
       else {
         Product.findById(savedProd._id)
           .select("-__v")
-          .populate("product_category", "_id name displayImage description")
           .populate("color", "_id color_name hexcode")
           .then((result) =>
             successRes(res, {
@@ -118,21 +117,13 @@ module.exports.editProduct_post = async (req, res) => {
     color,
     // price,
     priceVarient,
-    product_category,
+    category,
     // product_varient,
     displayImage,
     availability,
   } = req.body;
 
   const updates = {};
-
-  // console.log(req.files, req.body.prevImage);    
-  // if (!req.files.image)
-  //   return errorRes(res, 400, " Product Image is required.");
-  // if (req.files.image.length == 0)
-  //   return errorRes(res, 400, " Product Image is required.");
-  // if (req.files.image.length == 0)
-  //   return errorRes(res, 400, " Product Image is required.");
   let imageData = [];
   let newImage = [];
   if (req?.files?.image?.length > 0) {
@@ -178,7 +169,7 @@ module.exports.editProduct_post = async (req, res) => {
   if (description) updates.description = description;
   if (color) updates.color = color;
   // if (price) updates.price = price;
-  if (product_category) updates.product_category = product_category;
+  if (category) updates.category = JSON.parse(category);
   // if (product_varient) updates.product_varient = product_varient.split(',')
   if (priceVarient) updates.priceVarient = JSON.parse(priceVarient);
   if (newImage) {
@@ -194,7 +185,6 @@ module.exports.editProduct_post = async (req, res) => {
       new: true,
       runValidators: true,
     })
-      .populate("product_category", "_id name displayImage")
       .populate("color", "_id color_name hexcode")
       .then((updatedProd) => {
         if (!updatedProd) return errorRes(res, 400, "Product does not exist.");
@@ -211,7 +201,6 @@ module.exports.editProduct_post = async (req, res) => {
 module.exports.allProducts_get = (req, res) => {
   Product.find()
     .sort("-createdAt")
-    .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
@@ -221,7 +210,6 @@ module.exports.getParticularProduct_get = (req, res) => {
   const { productId } = req.params;
   console.log(productId);
   Product.findById(productId)
-    .populate("product_category", "_id name description displayImage")
     .populate("color", "_id color_name hexcode")
     .then((product) => successRes(res, { product }))
     .catch((err) => internalServerError(res, err));
@@ -276,7 +264,7 @@ module.exports.filterProducts_post = async (req, res) => {
   console.log({ query, sortQuery });
   try {
     const products = await Product.find(query)
-      .populate("color product_category")
+      .populate("color")
       .sort(sortQuery);
     return successRes(res, { products });
   } catch (err) {
@@ -288,7 +276,7 @@ module.exports.randomProducts_get = async (req, res) => {
   const { limit } = req.params;
 
   Product.find()
-    .populate("product_category color")
+    .populate("color")
     .limit(limit)
     .then((products) => successRes(res, { products }))
     .catch((err) => internalServerError(res, err));
@@ -297,7 +285,7 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
   const { page, limit } = req.query;
   console.log(req.query)
   try {
-    const getAllProducts = await Product.find();
+    const getAllProducts = await Product.find().populate('color');
     if (getAllProducts) {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
@@ -322,7 +310,7 @@ module.exports.searchProduct = async (req, res) => {
 
   }
   try {
-    const findProduct = await Product.find(queryObject);
+    const findProduct = await Product.find(queryObject).populate('color');
     if (findProduct) {
       successRes(res, findProduct);
     }

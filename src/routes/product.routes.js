@@ -7,7 +7,7 @@ router.get("/product/all", productController.allProducts_get);
 router.get("/product/:productId", productController.getParticularProduct_get);
 router.get("/product/random/:limit", productController.randomProducts_get);
 router.post("/product/filter", productController.filterProducts_post);
-router.post( 
+router.post(
   "/admin/product/add",
   // requireAdminLogin,
   upload.fields([{ name: "image", maxCount: 6 }]),
@@ -15,15 +15,14 @@ router.post(
 );
 router.post(
   "/admin/product/:productId/edit",
-  upload.fields([{ name: "image", maxCount: 6 }]), 
+  upload.fields([{ name: "image", maxCount: 6 }]),
   productController.editProduct_post
 );
-router.get("/product/searchproduct",productController.searchProduct);
+router.get("/product/searchproduct", productController.searchProduct);
 router.delete(
   "/admin/product/:productId/delete",
   productController.deleteProduct_delete
 );
-router.get("/product/search/paginated",productController.paginatedSearch);
+router.get("/product/search/paginated", productController.paginatedSearch);
 
 module.exports = router;
- 

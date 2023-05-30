@@ -18,5 +18,6 @@ router.delete(
   requireAdminLogin,
   categoryController.deleteProductCategory_delete
 );
+router.put("/product/category/:categoryId/edit",categoryController.editCategory);
 
 module.exports = router;

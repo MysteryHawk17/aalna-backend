@@ -1,5 +1,5 @@
-const varientDB = require("../models/product_varient");
-const asynchandler=require("express-async-handler");
+const subCategoryDB = require("../models/subcategory");
+const asynchandler = require("express-async-handler");
 const {
   errorRes,
   internalServerError,
@@ -8,55 +8,69 @@ const {
 const test = async (req, res) => {
   successRes(res, '');
 }
-const addVariennt = asynchandler(async(req,res)=>{
-  const name=req.body.name;
-  if(!name){
-    errorRes(res,400,"invalid input");
+const addSubCategory = asynchandler(async (req, res) => {
+  const name = req.body.name;
+  if (!name) {
+    errorRes(res, 400, "invalid input");
     return;
   }
-  const findName=await varientDB.findOne({name:name});
-  if(findName){
-    errorRes(res,400,"Varient already exists cannot add");
+  const findName = await subCategoryDB.findOne({ name: name });
+  if (findName) {
+    errorRes(res, 400, "Sub category already exists cannot add");
     return;
   }
-  const newVarient=new varientDB({
-    name:name
+  const newSubcategory = new subCategoryDB({
+    name: name
   })
-  const savedVarient =await newVarient.save();
-  if(savedVarient){
-    successRes(res,savedVarient);
+  const savedSubCategory = await newSubcategory.save();
+  if (savedSubCategory) {
+    successRes(res, savedSubCategory);
   }
-  else{
-    internalServerError(res,"Error in saving the varient"); 
+  else {
+    internalServerError(res, "Error in saving the varient");
   }
 
 
 })
-const getAllVarient=asynchandler(async(req,res)=>{
-  const getAllVarient=await varientDB.find({}).sort('name');
-  if(getAllVarient){
-    successRes(res,getAllVarient);
+const getAllSubCategory = asynchandler(async (req, res) => {
+  const getAllSubCategory = await subCategoryDB.find({}).sort('name');
+  if (getAllSubCategory) {
+    successRes(res, getAllSubCategory);
   }
-  else{
-    internalServerError(res,"Error in getting varient");
+  else {
+    internalServerError(res, "Error in getting varient");
   }
 })
 
-const deleteVarient=asynchandler(async(req,res)=>{
-  const id=req.params.id;
-  const findName=await varientDB.findOne({_id:id});
-  if(findName){
-    const deletedVarient=await varientDB.findByIdAndDelete({_id:id});
-    if  (deletedVarient){
-      successRes(res,deletedVarient);
+const deleteSubCategory = asynchandler(async (req, res) => {
+  const id = req.params.id;
+  const findName = await subCategoryDB.findOne({ _id: id });
+  if (findName) {
+    const deletedSubCategory = await subCategoryDB.findByIdAndDelete({ _id: id });
+    if (deletedSubCategory) {
+      successRes(res, deletedSubCategory);
     }
-    else{
-      internalServerError(res,"Cannot delete varient");
+    else {
+      internalServerError(res, "Cannot delete SubCategory");
     }
   }
-  else{
+  else {
 
-    errorRes(res,404,"Cannot find the Varient");
-    }
+    errorRes(res, 404, "Cannot find the SubCategory");
+  }
 })
-module.exports = { test ,addVariennt,getAllVarient,deleteVarient};
+
+const getASubCategory = asynchandler(async (req, res) => {
+  const id = req.params.id;
+  const findName = await subCategoryDB.findOne({ _id: id });
+  if (findName) {
+    successRes(res, findName);
+  }
+
+
+  else {
+
+    errorRes(res, 404, "Cannot find the SubCategory");
+  }
+})
+module.exports = { test, addSubCategory, getAllSubCategory,getASubCategory,deleteSubCategory };

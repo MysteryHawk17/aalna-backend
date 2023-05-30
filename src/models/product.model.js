@@ -24,10 +24,18 @@ const ProductSchema = mongoose.Schema(
     //   type: Number,
     //   required: true,
     // },
-    product_category: {
-      type: ObjectId,
-      ref: "Product_Category",
-      required: true,
+    // product_category: {
+    //   type: ObjectId,
+    //   ref: "Product_Category",
+    //   required: true,
+    // },
+    catagory:{
+      productCatagory: {
+        type:String,
+      },
+      subCatagory:{
+        type:String
+      }
     },
     priceVarient: [{
       varient: {
@@ -39,6 +47,7 @@ const ProductSchema = mongoose.Schema(
         required: true
       }
     }],
+    
     // product_varient:[{
     //   type:ObjectId,
     //   ref:"ProductVariation",
