@@ -276,20 +276,20 @@ module.exports.deleteProduct_delete = async (req, res) => {
 module.exports.filterProducts_post = async (req, res) => {
   const { categories, product_subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
-  let query = {};
-  let query1 = {};
+  let queries = [];
 
   if (categories && categories.length != 0)
-    query.product_category = { $in: categories };
+    queries.push({ product_category: { $in: categories } });
 
   if (product_subCategory && product_subCategory.length != 0) {
-    query1.product_subCategory = { $in: product_subCategory };
+    queries.push({ product_subCategory: { $in: product_subCategory } });
   }
-  if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
-  else if (minPrice) query.price = { $gte: minPrice };
-  else if (maxPrice) query.price = { $lte: maxPrice };
 
-  if (colors && colors.length != 0) query.color = { $in: colors };
+  if (minPrice && maxPrice) queries.push({ price: { $gte: minPrice, $lte: maxPrice } });
+  else if (minPrice) queries.push({ price: { $gte: minPrice } });
+  else if (maxPrice) queries.push({ price: { $lte: maxPrice } });
+
+  if (colors && colors.length != 0) queries.push({ color: { $in: colors } });
 
   let sortQuery = {};
 
@@ -297,17 +297,12 @@ module.exports.filterProducts_post = async (req, res) => {
   else if (sortBy === "price-low-to-high") sortQuery.price = 1;
   else if (sortBy === "latest") sortQuery.createdAt = -1;
 
-  console.log({ query, sortQuery });
+  console.log({ queries, sortQuery });
+
   try {
     const products = await Product.find(
-      {
-        $or: [
+      { $or: queries }
 
-          query,
-          query1
-
-        ]
-      }
     )
       .populate("color product_category")
       .sort(sortQuery);
