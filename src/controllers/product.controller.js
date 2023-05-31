@@ -274,14 +274,14 @@ module.exports.deleteProduct_delete = async (req, res) => {
 };
 
 module.exports.filterProducts_post = async (req, res) => {
-  const { categories, subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
+  const { categories, product_subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
   let query = {};
 
   if (categories && categories.length != 0)
     query.product_category = { $in: categories };
 
-  if (subCategory) {
+  if (product_subCategory) {
     query.product_subCategory = { $in: product_subCategory };
   }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
