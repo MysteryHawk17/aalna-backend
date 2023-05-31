@@ -33,7 +33,7 @@ module.exports.addProduct_post = async (req, res) => {
     !description ||
     !color ||
     !priceVarient ||
-    !product_subCategory||
+    !product_subCategory ||
     !product_category ||
     !availability
   )
@@ -172,7 +172,7 @@ module.exports.editProduct_post = async (req, res) => {
       const imageurl1 = await uploadOnCloudinary(req.files.image[6]);
       imageData = [...imageData, { url: imageurl1 }];
     }
-    newImage = [...JSON.parse(req.body.prevImage), ...imageData];
+    // newImage = [...JSON.parse(req.body.prevImage), ...imageData];
   }
 
   // res.status(200).send(newImage);
@@ -186,8 +186,8 @@ module.exports.editProduct_post = async (req, res) => {
   if (product_subCategory) updates.product_subCategory = product_subCategory;
   // if (product_varient) updates.product_varient = product_varient.split(',')
   if (priceVarient) updates.priceVarient = JSON.parse(priceVarient);
-  if (newImage) {
-    if (newImage.length !== 0) updates.displayImage = newImage;
+  if (req.files.image.length > 0) {
+    if (imageData.length !== 0) updates.displayImage = imageData;
   }
   if (availability) updates.availability = availability;
 
@@ -195,6 +195,15 @@ module.exports.editProduct_post = async (req, res) => {
   if (Object.keys(updates).length == 0)
     return errorRes(res, 400, "No updates made.");
   else {
+    try {
+      const findProduct = Product.findById({ _id: productId });
+      findProduct.displayImage.map(async (e) => {
+        await deleteFromCloudinary(e.url);
+      })
+    } catch (error) {
+      return internalServerError(res, "Unable to find product");
+    }
+
     Product.findByIdAndUpdate(productId, updates, {
       new: true,
       runValidators: true,
@@ -259,15 +268,15 @@ module.exports.deleteProduct_delete = async (req, res) => {
 };
 
 module.exports.filterProducts_post = async (req, res) => {
-  const { categories,subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
+  const { categories, subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
   let query = {};
 
   if (categories && categories.length != 0)
     query.product_category = { $in: categories };
 
-  if(subCategory){
-    query.product_subCategory={$in:product_subCategory};
+  if (subCategory) {
+    query.product_subCategory = { $in: product_subCategory };
   }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
   else if (minPrice) query.price = { $gte: minPrice };
@@ -310,13 +319,13 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const result = getAllProducts.slice(startIndex, endIndex);
-      const res={
-        result:result,
-        totalPage:Math.ceil(getAllProducts.length/limit)
+      const res = {
+        result: result,
+        totalPage: Math.ceil(getAllProducts.length / limit)
       }
       successRes(res, res);
     }
-    else { 
+    else {
       internalServerError(res, 'Unable to fetch the products');
     }
   } catch (error) {
