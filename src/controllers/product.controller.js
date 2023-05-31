@@ -277,12 +277,13 @@ module.exports.filterProducts_post = async (req, res) => {
   const { categories, product_subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
   let query = {};
+  let query1 = {};
 
   if (categories && categories.length != 0)
     query.product_category = { $in: categories };
 
   if (product_subCategory && product_subCategory.length != 0) {
-    query.product_subCategory = { $in: product_subCategory };
+    query1.product_subCategory = { $in: product_subCategory };
   }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
   else if (minPrice) query.price = { $gte: minPrice };
@@ -302,7 +303,9 @@ module.exports.filterProducts_post = async (req, res) => {
       {
         $or: [
 
-          query
+          query,
+          query1
+
         ]
       }
     )
