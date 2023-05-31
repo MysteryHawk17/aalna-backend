@@ -202,7 +202,7 @@ module.exports.editProduct_post = async (req, res) => {
     return errorRes(res, 400, "No updates made.");
   else {
     try {
-      const findProduct = Product.findById({ _id: productId });
+      const findProduct = await Product.findById({ _id: productId });
       findProduct.displayImage.map(async (e) => {
         await deleteFromCloudinary(e.url);
       })
