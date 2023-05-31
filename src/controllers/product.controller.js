@@ -319,11 +319,11 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const result = getAllProducts.slice(startIndex, endIndex);
-      const res = {
+      const finalResult = {
         result: result,
         totalPage: Math.ceil(getAllProducts.length / limit)
       }
-      successRes(res, res);
+      successRes(res, finalResult);
     }
     else {
       internalServerError(res, 'Unable to fetch the products');
