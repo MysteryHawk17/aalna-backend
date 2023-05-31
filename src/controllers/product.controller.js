@@ -281,7 +281,7 @@ module.exports.filterProducts_post = async (req, res) => {
   if (categories && categories.length != 0)
     query.product_category = { $in: categories };
 
-  if (product_subCategory && product_subCategory.length!=0) {
+  if (product_subCategory && product_subCategory.length != 0) {
     query.product_subCategory = { $in: product_subCategory };
   }
   if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
@@ -298,7 +298,14 @@ module.exports.filterProducts_post = async (req, res) => {
 
   console.log({ query, sortQuery });
   try {
-    const products = await Product.find(query)
+    const products = await Product.find(
+      {
+        $or: [
+
+          query
+        ]
+      }
+    )
       .populate("color product_category")
       .sort(sortQuery);
     return successRes(res, { products });
