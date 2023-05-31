@@ -13,7 +13,7 @@ router.post(
   upload.fields([{ name: "image", maxCount: 6 }]),
   productController.addProduct_post
 );
-router.post(
+router.put(
   "/admin/product/:productId/edit",
   upload.fields([{ name: "image", maxCount: 6 }]), 
   productController.editProduct_post
