@@ -277,21 +277,44 @@ module.exports.filterProducts_post = async (req, res) => {
   const { categories, product_subCategory, minPrice, maxPrice, colors, sortBy } = req.body;
 
   let query = {};
+  let query1 = {};
 
-  if (categories && categories.length != 0)
-    query.product_category = { $in: categories };
+  if (minPrice && maxPrice) {
+    query.price = { $gte: minPrice, $lte: maxPrice };
+    query1.price = { $gte: minPrice, $lte: maxPrice }
+  }
+  else if (minPrice) {
+    query.price = { $gte: minPrice }
+    query1.price = { $gte: minPrice }
+  }
+  else if (maxPrice) {
+    query.price = { $lte: maxPrice }
+    query1.price = { $lte: maxPrice }
+  };
 
-  if (minPrice && maxPrice) query.price = { $gte: minPrice, $lte: maxPrice };
-  else if (minPrice) query.price = { $gte: minPrice };
-  else if (maxPrice) query.price = { $lte: maxPrice };
+  if (colors && colors.length != 0) {
+    query.color = { $in: colors }
+    query1.color = { $in: colors }
+  };
 
-  if (colors && colors.length != 0) query.color = { $in: colors };
-
-  let subCategoryQuery = {};
+  // let subCategoryQuery = {};
 
   if (product_subCategory && product_subCategory.length != 0) {
-    subCategoryQuery.product_subCategory = { $in: product_subCategory };
+    query1.product_subCategory = { $in: product_subCategory };
   }
+
+  if (categories && categories.length != 0) {
+    query.product_category = { $in: categories };
+  }
+
+  let combinedQuery = categories?.length > 0 && product_subCategory?.length > 0 ?
+    [query, query1]
+    :
+    categories?.length > 0 ?
+      [query]
+      :
+      [query1]
+
 
   let sortQuery = {};
 
@@ -299,10 +322,10 @@ module.exports.filterProducts_post = async (req, res) => {
   else if (sortBy === "price-low-to-high") sortQuery.price = 1;
   else if (sortBy === "latest") sortQuery.createdAt = -1;
 
-  console.log({ query, subCategoryQuery, sortQuery });
+  // console.log({ query, subCategoryQuery, sortQuery });
   try {
     const products = await Product.find({
-      $and: [query, { $or: [subCategoryQuery] }]
+      $or: combinedQuery
     }
     )
       .populate("color product_category")
@@ -349,9 +372,11 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
 })
 module.exports.searchProduct = async (req, res) => {
   const { query } = req.query;
+  const queryObject={};
   if (query) {
 
-    queryObject.query = { $regex: query, $options: 'i' }
+    queryObject.displayName = { $regex: query, $options: 'i' }
+    queryObject.product_subCategory = { $regex: query, $options: 'i' }
 
   }
   try {
