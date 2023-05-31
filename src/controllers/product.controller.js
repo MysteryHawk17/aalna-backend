@@ -77,7 +77,7 @@ module.exports.addProduct_post = async (req, res) => {
   }
   // console.log(imageData, "<<thisisimage", req.body.prevImage);
   // return null;
-
+  const parseData = JSON.parse(priceVarient);
   const product = new Product({
     displayName,
     brand_title,
@@ -85,7 +85,8 @@ module.exports.addProduct_post = async (req, res) => {
     color,
     product_category,
     product_subCategory,
-    priceVarient: JSON.parse(priceVarient),
+    priceVarient: parseData,
+    price: parseData[0].price,
     displayImage: imageData,
     availability,
     productId,
@@ -185,7 +186,12 @@ module.exports.editProduct_post = async (req, res) => {
   if (product_category) updates.product_category = product_category;
   if (product_subCategory) updates.product_subCategory = product_subCategory;
   // if (product_varient) updates.product_varient = product_varient.split(',')
-  if (priceVarient) updates.priceVarient = JSON.parse(priceVarient);
+  if (priceVarient) {
+    const parseData = JSON.parse(priceVarient)
+    updates.priceVarient = parseData;
+    updates.price = parseData[0].price;
+
+  };
   if (req.files.image.length > 0) {
     if (imageData.length !== 0) updates.displayImage = imageData;
   }
