@@ -15,6 +15,10 @@ const CartSchema = mongoose.Schema(
           required: true,
           default: 1,
         },
+        priceVarient:{
+          type:Object,
+          required:true
+        }
       },
     ],
     user: {

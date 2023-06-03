@@ -19,6 +19,10 @@ const OrderSchema = mongoose.Schema(
           type: Number,
           required: true,
         },
+        priceVarient: {
+          type: Object,
+          required: true
+        }
       },
     ],
     order_price: {
