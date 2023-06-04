@@ -348,23 +348,18 @@ module.exports.randomProducts_get = async (req, res) => {
 module.exports.paginatedSearch = asynchandler(async (req, res) => {
   const { page, limit } = req.query;
   console.log(req.query)
-  try {
-    const getAllProducts = await Product.find();
-    if (getAllProducts) {
-      const startIndex = (page - 1) * limit;
-      const endIndex = page * limit;
-      const result = getAllProducts.slice(startIndex, endIndex);
-      const finalResult = {
-        result: result,
-        totalPage: Math.ceil(getAllProducts.length / limit)
-      }
-      successRes(res, finalResult);
+  const getAllProducts = await Product.find();
+  if (getAllProducts) {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const result = getAllProducts.slice(startIndex, endIndex);
+    const finalResult = {
+      result: result,
+      totalPage: Math.ceil(getAllProducts.length / limit)
     }
-    else {
-      internalServerError(res, 'Unable to fetch the products');
-    }
-  } catch (error) {
-    console.log(error)
+    successRes(res, finalResult);
+  }
+  else {
     internalServerError(res, 'Unable to fetch the products');
   }
 
@@ -372,7 +367,7 @@ module.exports.paginatedSearch = asynchandler(async (req, res) => {
 })
 module.exports.searchProduct = async (req, res) => {
   const { query } = req.query;
-  const queryObject={};
+  const queryObject = {};
   if (query) {
 
     queryObject.displayName = { $regex: query, $options: 'i' }

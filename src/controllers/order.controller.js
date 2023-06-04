@@ -3,6 +3,7 @@ const User_Order = mongoose.model("User_Order");
 const User = mongoose.model("User");
 const User_Cart = mongoose.model("User_Cart");
 const Product = mongoose.model("Product");
+const asynchandler = require("express-async-handler");
 const {
   errorRes,
   successRes,
@@ -112,6 +113,7 @@ module.exports.placeOrder_post = async (req, res) => {
 };
 
 module.exports.getAllOrders_get = (req, res) => {
+  const { limit, page } = req.query;
   User_Order.find()
     .sort("-createdAt")
     .populate([
@@ -126,9 +128,67 @@ module.exports.getAllOrders_get = (req, res) => {
         select: "_id code condition min_price discount_percent is_active",
       },
     ])
-    .then((orders) => successRes(res, { orders }))
+    .then((orders) => {
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const result = orders.slice(startIndex, endIndex);
+      const finalResult = {
+        result: result,
+        totalPage: Math.ceil(findData.length / limit)
+      }
+      successRes(res, finalResult)
+    })
     .catch((err) => internalServerError(res, err));
 };
+
+module.exports.getYearWiseorder = asynchandler(async (req, res) => {
+  const { year, limit, page } = req.query;
+  if (!limit || !page || !year) {
+    return errorRes(res, 400, "At least year is required");
+  }
+  else if (!limit || !page) {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+    const query = {
+      createdAt: {
+        $gte: startDate,
+        $lt: endDate
+      }
+    };
+    const result = await User_Order.find(query);
+    if (result) {
+      successRes(res, result);
+    }
+    else {
+      internalServerError(res, "Failed to get the desired orders");
+    }
+  }
+  else {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+    const query = {
+      createdAt: {
+        $gte: startDate,
+        $lt: endDate
+      }
+    };
+    const findData = await User_Order.find(query);
+    if (findData) {
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const result = findData.slice(startIndex, endIndex);
+      const finalResult = {
+        result: result,
+        totalPage: Math.ceil(findData.length / limit)
+      }
+      successRes(res, finalResult);
+    }
+    else {
+      internalServerError(res, "Cannot find the results");
+    }
+
+  }
+})
 
 module.exports.userPreviousOrders_get = (req, res) => {
   const { _id } = req.user;
@@ -293,7 +353,7 @@ module.exports.rzpPaymentVerification = async (req, res) => {
             })
           );
       })
-      .catch((err) => internalServerError(res , err));
+      .catch((err) => internalServerError(res, err));
   } catch (error) {
     internalServerError(res, error);
   }

@@ -23,7 +23,7 @@ module.exports.editProductInCart_post = async (req, res) => {
   const { productId, type } = req.params;
   const {priceVarient}=req.body;
 
-  if (!productId||!priceVarient) return errorRes(res, 400, "Invalid product Id. or no price varient");
+  if (!productId || !priceVarient) return errorRes(res, 400, "Invalid product Id. or no price varient");
   if (type != "add" && type != "subtract" && type != "delete")
     return errorRes(
       res,
@@ -36,7 +36,7 @@ module.exports.editProductInCart_post = async (req, res) => {
     if (!cart)
       return errorRes(res, 400, "Internal server error. Please try again.");
 
-    const productIndex = cart.products.findIndex(p => p.product == productId);
+    const productIndex = cart.products.findIndex(p => (p.product == productId && p.priceVarient.varient == priceVarient.varient));
 
     if (productIndex > -1) {
       if (type === "add") {
@@ -70,7 +70,7 @@ module.exports.editProductInCart_post = async (req, res) => {
       }
     } else {
       if (type === "add")
-        cart.products.push({ product: productId, quantity: 1 ,priceVarient:priceVarient});
+        cart.products.push({ product: productId, quantity: 1, priceVarient: priceVarient });
       else return errorRes(res, 400, "Product does not exist in cart.");
     }
 

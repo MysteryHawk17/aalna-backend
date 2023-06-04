@@ -34,6 +34,9 @@ router.get(
   requireAdminLogin,
   orderController.getAllOrders_get
 );
+router.get('/admin/order/yearwise',
+  requireAdminLogin,
+  orderController.getYearWiseorder);
 router.get(
   "/user/order/all",
   requireUserLogin,
